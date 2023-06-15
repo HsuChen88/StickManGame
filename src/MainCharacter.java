@@ -1,3 +1,5 @@
+import java.util.Random;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -5,6 +7,8 @@ import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 public class MainCharacter extends Person {
@@ -24,6 +28,10 @@ public class MainCharacter extends Person {
 	private Timeline walkTimeline = new Timeline(
 			new KeyFrame(Duration.millis(STEP_DURATION), event -> handleWalk()));
 	private Timeline attackTimeline = new Timeline(new KeyFrame(Duration.millis(60), event -> handleAttack()));
+
+	private String[] ManSoundsPath = { "Sounds/huhPunchSound.mp3", "Sounds/ohPunchSound.mp3"  };
+
+	private Random random = new Random();
 
 	private int jumpIndex = 0;
 	private int walkIndex = 0;
@@ -134,6 +142,7 @@ public class MainCharacter extends Person {
 	}
 
 	private void handleAttack() {
+		
 		characterImageView.setImage(StickManGame.ATTACKIMAGES[attackIndex]);
 
 		if (attackIndex == 0) {
@@ -152,6 +161,13 @@ public class MainCharacter extends Person {
 
 		dustImageView.setImage(StickManGame.ATTACKDUSTIMAGES[attackIndex]);
 		attackIndex = (attackIndex + 1) % StickManGame.ATTACKIMAGES.length;
+		
+		// 播放攻擊音效
+		if (random.nextInt(10) % 10 == 3) {	// 十分之一的機率會大吼
+			Media attackMedia = new Media(getClass().getResource(ManSoundsPath[random.nextInt(2)]).toExternalForm());
+			MediaPlayer attackMediaPlayer = new MediaPlayer(attackMedia);
+			attackMediaPlayer.play();
+		}
 	}
 
 	public void attack() {

@@ -19,6 +19,8 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -98,7 +100,7 @@ public class StickManGame extends Application {
 			new Image("Images/Boss/Pikachu/Beam/Beam_0022.png"), new Image("Images/Boss/Pikachu/Beam/Beam_0023.png"),
 			new Image("Images/Boss/Pikachu/Beam/Beam_0024.png") };
 
-	String[] SoundsPath = { "" };
+	String[] AttackSoundsPath = { "Sounds/attack.mp3", "Sounds/punchSound.mp3" };
 
 	public GraphicsContext gc;
 	public Map map;
@@ -340,6 +342,14 @@ public class StickManGame extends Application {
 		playerLifeBar.setLayoutY(40);
 		root.getChildren().addAll(player.imageViewGroup, playerLifeText, playerLifeBar);
 
+		// 音效
+		Media winMedia = new Media(getClass().getResource("Sounds/win.mp3").toExternalForm());
+		MediaPlayer winMediaPlayer = new MediaPlayer(winMedia);
+		Media loseMedia = new Media(getClass().getResource("Sounds/died.mp3").toExternalForm());
+		MediaPlayer loseMediaPlayer = new MediaPlayer(loseMedia);
+		Media hitMedia = new Media(getClass().getResource("Sounds/bleedSound.mp3").toExternalForm());
+		MediaPlayer hitMediaPlayer = new MediaPlayer(hitMedia);
+
 		// Animation
 		refreshTimeline = new Timeline(new KeyFrame(Duration.millis(60), event -> {
 			// player
@@ -348,7 +358,10 @@ public class StickManGame extends Application {
 			}
 			if (player.life <= 0) {
 				player.dead = true;
-				// 顯示GameOver回主畫面
+				// 播放輸了音效
+				loseMediaPlayer.play();
+
+				// 顯示GameOver
 				System.out.println("GAME OVER");
 				Alert alert = new Alert(Alert.AlertType.INFORMATION);
 				alert.setTitle("戰鬥結果");
@@ -405,9 +418,12 @@ public class StickManGame extends Application {
 			} else {
 				bossLifeBar.setStyle("-fx-accent: DeepSkyBlue;");
 			}
-			
+
 			// check Win
 			if (checkWin()) {
+				// 播放贏了音效
+				winMediaPlayer.play();
+
 				// 顯示你贏了回到主畫面
 				System.out.println("YOU WIN");
 				if (gaming) {
@@ -419,6 +435,7 @@ public class StickManGame extends Application {
 						System.out.println("restart");
 						// reset game
 						player.die();
+
 						loseFlag = false;
 
 						start(stage);
@@ -454,6 +471,13 @@ public class StickManGame extends Application {
 						});
 						root.getChildren().add(text);
 						enemy.bleed(PLAYER_DAMAGE);
+						// 播放打到的音效
+						Media attackMedia = new Media(
+								getClass().getResource(AttackSoundsPath[random.nextInt(2)]).toExternalForm());
+						MediaPlayer attackMediaPlayer = new MediaPlayer(attackMedia);
+						attackMediaPlayer.play();
+						// 播放流血音效
+						hitMediaPlayer.play();
 					}
 				}
 			}
@@ -474,6 +498,14 @@ public class StickManGame extends Application {
 					});
 					root.getChildren().add(text);
 					pikachu.bleed(PLAYER_DAMAGE);
+					// 播放打到的音效
+					Media attackMedia = new Media(
+							getClass().getResource(AttackSoundsPath[random.nextInt(2)]).toExternalForm());
+					MediaPlayer attackMediaPlayer = new MediaPlayer(attackMedia);
+					attackMediaPlayer.play();
+					// 播放流血音效
+					hitMediaPlayer.play();
+
 				}
 				// Boss 技能打 player
 				if (pikachu.beamImageView.getBoundsInParent()
